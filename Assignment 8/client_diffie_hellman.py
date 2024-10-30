@@ -1,5 +1,6 @@
 import socket
 import random
+from sympy import isprime, primerange
 
 def generate_private_key(p):
     """Generate a private key."""
@@ -18,10 +19,40 @@ def calculate_shared_secret(public_key, private_key, p):
     shared_secret = pow(public_key, private_key, p)
     return shared_secret
 
+def find_next_prime(n):
+    """Find the next prime number greater than or equal to n."""
+    if isprime(n):
+        return n
+    else:
+        for prime in primerange(n + 1, n * 2):
+            return prime
+
+def find_primitive_roots(p, count=5):
+    """Find the first `count` primitive roots of prime `p`."""
+    roots = []
+    for g in range(2, p):
+        seen = set(pow(g, power, p) for power in range(1, p))
+        if len(seen) == p - 1:
+            roots.append(g)
+        if len(roots) >= count:
+            break
+    return roots
+
 def start_client(server_host='localhost', server_port=5000):
-    # Take p and g as user input
+    # Take p as user input and validate it
     p = int(input("\nEnter a prime number (p): "))
-    g = int(input("\nEnter a primitive root (g): "))
+    p = find_next_prime(p)
+    print(f"\nValidated Prime Number (p): {p}")
+
+    # Find and list primitive roots of p
+    primitive_roots = find_primitive_roots(p)
+    print(f"\nFirst Five Primitive Roots for {p}: {primitive_roots}")
+
+    # Take g as user input and validate it
+    g = int(input(f"\nChoose a primitive root (g) from the above list: "))
+    while g not in primitive_roots:
+        print("Invalid choice. Please choose a primitive root from the list.")
+        g = int(input(f"\nChoose a primitive root (g) from the above list: "))
 
     # Generate client's private and public keys
     private_key = generate_private_key(p)
