@@ -1,4 +1,3 @@
-
 import random
 from sympy import isprime, mod_inverse
 
